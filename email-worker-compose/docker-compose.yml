@@ -1,0 +1,32 @@
+version: '3.8'
+volumes:
+  data:
+services:
+  db:
+    container_name: postgres
+    image: postgres:9.6
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      # Volume dos dados
+      - data:/var/lib/postgresql/data
+      # Volume dos scripts
+      - ./scripts:/scripts
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+  fronted:
+    container_name: nginx
+    image: nginx:1.13
+    volumes:
+      # Volume para o site
+      - ./web:/usr/share/nginx/html/
+    ports:
+      - 80:80
+  app:
+    container_name: app
+    image: python:3.6
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    command: bash ./app.sh
+    ports:
+      - 8080:8080
